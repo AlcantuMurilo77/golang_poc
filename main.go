@@ -1,18 +1,23 @@
 package main
 
 import (
+	"example.com/my_go_proj/db"
 	"example.com/my_go_proj/models"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
 func main() {
+	db.InitDB()
 	server := gin.Default()
 
 	server.GET("/events", getEvents)
 	server.POST("/events", createEvent)
 
-	server.Run(":8080")
+	err := server.Run(":8080")
+	if err != nil {
+		panic("Could not start server")
+	}
 }
 
 func getEvents(context *gin.Context) {
