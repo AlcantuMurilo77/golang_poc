@@ -2,6 +2,7 @@ package models
 
 import (
 	"example.com/my_go_proj/db"
+	"example.com/my_go_proj/utils"
 )
 
 type User struct {
@@ -10,7 +11,7 @@ type User struct {
 	Password string `binding:"required"`
 }
 
-func (u User) Save() error {
+func (u *User) Save() error {
 	query := `
   INSERT INTO users(email, password)
   VALUES (?, ?)`
@@ -21,7 +22,14 @@ func (u User) Save() error {
 	}
 	defer stmt.Close()
 
-	result, err := stmt.Exec(u.Email, u.Password)
+	hashedPass, err := utils.HashPassword(u.Password)
+	if err != nil {
+		return err
+	}
+
+	u.Password = hashedPass
+
+	result, err := stmt.Exec(u.Email, hashedPass)
 	if err != nil {
 		return err
 	}
